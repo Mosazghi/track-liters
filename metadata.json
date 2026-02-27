@@ -1,0 +1,9 @@
+{
+  "name": "trackliters",
+  "uuid": "mosazghi@trackliters.com",
+  "description": "Track water drank",
+  "version": 1,
+  "shell-version": ["46", "47", "48", "49"],
+  "url": "https://github.com/Mosazghi/track-liters",
+  "settings-schema": "org.gnome.shell.extensions.trackliters"
+}
