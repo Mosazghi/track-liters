@@ -2,6 +2,8 @@
 
 A minimal GNOME Shell extension that lives in your top panel and lets you track how much water you drink throughout the day.
 
+https://github.com/user-attachments/assets/eec4e96e-a712-423f-ba1e-303a5f308f40
+
 ## Controls
 
 All controls are performed by clicking the panel indicator.
