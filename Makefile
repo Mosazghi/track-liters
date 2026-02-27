@@ -1,6 +1,5 @@
 NAME=trackliters
 DOMAIN=mosazghi
-STAGING=staging
 
 .PHONY: all pack install clean run
 
@@ -15,22 +14,20 @@ dist/extension.js: node_modules/.package-lock.json $(wildcard *.ts)
 schemas/gschemas.compiled: schemas/org.gnome.shell.extensions.$(NAME).gschema.xml
 	glib-compile-schemas schemas
 
+
 $(NAME).zip: dist/extension.js schemas/gschemas.compiled
-	@rm -rf $(STAGING)
-	@mkdir -p $(STAGING)
-	@cp -r dist/* $(STAGING)/
-	@cp -r schemas $(STAGING)/
-	@cp metadata.json $(STAGING)/
-	@(cd $(STAGING) && zip ../$(NAME).zip -9r .)
-	@rm -rf $(STAGING)
+	@cp -r schemas dist/
+	@cp metadata.json dist/
+	@(cd dist && zip ../$(NAME).zip -9r .)
 
 pack: $(NAME).zip
 
 install: $(NAME).zip
 	gnome-extensions install --force $(NAME).zip
 
-clean:
-	@rm -rf dist node_modules $(NAME).zip $(STAGING)
 
-run: install
+clean:
+	@rm -rf dist node_modules $(NAME).zip
+
+run: dist/extension.js schemas/gschemas.compiled
 	dbus-run-session gnome-shell --devkit --wayland
