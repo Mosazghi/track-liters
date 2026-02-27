@@ -1,4 +1,5 @@
 import Clutter from "gi://Clutter";
+import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import St from "gi://St";
@@ -10,14 +11,14 @@ const SETTINGS_KEY = "total-liters";
 const LitersIndicator = GObject.registerClass(class LitersIndicator extends PanelMenu.Button {
     _totalLiters = 0;
     _withWaterEmoji = true;
-    _settings;
-    _label;
+    _settings: Gio.Settings | null = null;
+    _label: St.Label | null = null;
     _resetLitersTimer = 0;
     _toggleEmojiTimer = 0;
     _init() {
         super._init(0.0, "Liters Counter", false);
     }
-    _litersDisplay(liters) {
+    _litersDisplay(liters: number) {
         return `${liters} L ${this._withWaterEmoji ? "💧" : ""}`;
     }
     _increase() {
@@ -30,7 +31,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
         this._totalLiters = Math.max(0, this._totalLiters - CHANGE_AMOUNT);
         this._updateDisplay("dec");
     }
-    _animateLabel(type) {
+    _animateLabel(type : "inc" | "dec") {
         const color = type === "inc" ? "#91d293" : "#dc685c";
         const direction = type === "inc" ? -3 : 3;
         this._label?.set_style(`color: ${color};`);
@@ -54,9 +55,9 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
             return GLib.SOURCE_REMOVE;
         });
     }
-    _updateDisplay(type) {
+    _updateDisplay(type : "inc" | "dec") {
         this._settings?.set_double(SETTINGS_KEY, this._totalLiters);
-        this._label.text = this._litersDisplay(this._totalLiters);
+        this._label!.text = this._litersDisplay(this._totalLiters);
         this._animateLabel(type);
     }
     destroy() {
@@ -70,7 +71,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
         }
         super.destroy();
     }
-    setup(settings) {
+    setup(settings : Gio.Settings) {
         this._settings = settings;
         this._totalLiters = this._settings.get_double(SETTINGS_KEY);
         this._label = new St.Label({
@@ -89,7 +90,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
                 this._resetLitersTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 800, () => {
                     this._totalLiters = 0;
                     this._settings?.set_double(SETTINGS_KEY, 0);
-                    this._label.text = this._litersDisplay(0);
+                    this._label!.text = this._litersDisplay(0);
                     this._resetLitersTimer = 0;
                     return GLib.SOURCE_REMOVE;
                 });
@@ -101,7 +102,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
                 }
                 this._toggleEmojiTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 800, () => {
                     this._withWaterEmoji = !this._withWaterEmoji;
-                    this._label.text = this._litersDisplay(this._totalLiters);
+                    this._label!.text = this._litersDisplay(this._totalLiters);
                     this._toggleEmojiTimer = 0;
                     return GLib.SOURCE_REMOVE;
                 });
@@ -124,7 +125,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
     }
 });
 export default class TrackLitersExtension extends Extension {
-    _indicator = null;
+    _indicator : InstanceType<typeof LitersIndicator> | null = null;
     enable() {
         const settings = this.getSettings();
         this._indicator = new LitersIndicator(0, "Liters Indicator");
