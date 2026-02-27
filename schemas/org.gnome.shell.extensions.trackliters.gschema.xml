@@ -6,5 +6,10 @@
       <default>0.0</default>
       <summary>Total liters consumed</summary>
     </key>
+
+    <key name="emoji-state" type="b">
+      <default>false</default>
+      <summary>Emoji state</summary>
+    </key>
   </schema>
 </schemalist>

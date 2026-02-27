@@ -10,7 +10,7 @@ const CHANGE_AMOUNT = 0.5;
 const SETTINGS_KEY = "total-liters";
 const LitersIndicator = GObject.registerClass(class LitersIndicator extends PanelMenu.Button {
     _totalLiters = 0;
-    _withWaterEmoji = true;
+    _withWaterEmoji = false;
     _settings: Gio.Settings | null = null;
     _label: St.Label | null = null;
     _resetLitersTimer = 0;
@@ -74,6 +74,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
     setup(settings : Gio.Settings) {
         this._settings = settings;
         this._totalLiters = this._settings.get_double(SETTINGS_KEY);
+        this._withWaterEmoji = this._settings.get_boolean("emoji-state");
         this._label = new St.Label({
             text: this._litersDisplay(this._totalLiters),
             y_align: Clutter.ActorAlign.CENTER,
@@ -102,6 +103,7 @@ const LitersIndicator = GObject.registerClass(class LitersIndicator extends Pane
                 }
                 this._toggleEmojiTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 800, () => {
                     this._withWaterEmoji = !this._withWaterEmoji;
+                    this._settings?.set_boolean("emoji-state", this._withWaterEmoji);
                     this._label!.text = this._litersDisplay(this._totalLiters);
                     this._toggleEmojiTimer = 0;
                     return GLib.SOURCE_REMOVE;
